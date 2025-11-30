@@ -15,4 +15,5 @@ public interface BookingService {
     Mono<Booking> updateSeatNumbers(String bookingId, List<String> seatNumbers);
     Mono<Booking> updatePassengerIds(String bookingId, List<String> passengerIds);
     Mono<Booking> updateTotalAmount(String bookingId, float amount);
+	Mono<Booking> bookFlight(Booking bookingRequest);
 }

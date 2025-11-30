@@ -27,6 +27,11 @@ public class BookingController {
     public Mono<Booking> createBooking(@RequestBody Booking booking) {
         return bookingService.createBooking(booking);
     }
+    
+    @PostMapping("/book")
+    public Mono<Booking> bookFlight(@RequestBody Booking booking) {
+        return bookingService.bookFlight(booking);
+    }
 
     @GetMapping("/{pnr}")
     public Mono<Booking> getByPnr(@PathVariable String pnr) {

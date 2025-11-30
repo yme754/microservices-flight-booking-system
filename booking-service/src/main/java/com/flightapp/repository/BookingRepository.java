@@ -1,12 +1,12 @@
 package com.flightapp.repository;
 
-import java.util.Optional;
-
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 
 import com.flightapp.entity.Booking;
 
+import reactor.core.publisher.Mono;
+
 public interface BookingRepository extends ReactiveMongoRepository<Booking, String>{
-	Optional<Booking> findByPnr(String pnr);
-	Optional<Booking> findByEmail(String email);
+	Mono<Booking> findByPnr(String pnr);
+	Mono<Booking> findByEmail(String email);
 }

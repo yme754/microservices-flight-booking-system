@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import com.flightapp.entity.Booking;
+import com.flightapp.feign.FlightClient;
 import com.flightapp.repository.BookingRepository;
 import com.flightapp.service.BookingService;
 
@@ -17,15 +18,35 @@ import reactor.core.publisher.Mono;
 public class BookingSImplementation implements BookingService{
 	private final BookingRepository bookingRepo;
 
-    public BookingSImplementation(BookingRepository bookingRepo) {
-        this.bookingRepo = bookingRepo;
-    }
+	private final FlightClient flightClient;
+
+	public BookingSImplementation(BookingRepository bookingRepo, FlightClient flightClient) {
+	    this.bookingRepo = bookingRepo;
+	    this.flightClient = flightClient;
+	}
+
 
     @Override
     public Mono<Booking> createBooking(Booking booking) {
         booking.setId(UUID.randomUUID().toString());
         booking.setPnr("PNR-" + booking.getId().substring(0, 6).toUpperCase());
         return bookingRepo.save(booking);
+    }
+    
+    @Override
+    public Mono<Booking> bookFlight(Booking bookingRequest) {
+
+        return Mono.fromCallable(() -> flightClient.getFlightById(bookingRequest.getFlightId()))
+                .flatMap(flight -> {
+                    if (flight == null) 
+                    	return Mono.error(new RuntimeException("Flight not found"));
+                    if (flight.getAvailableSeats() < bookingRequest.getSeatCount()) return Mono.error(new RuntimeException("Not enough seats available"));
+                    flight.setAvailableSeats(flight.getAvailableSeats() - bookingRequest.getSeatCount());
+                    flightClient.updateFlight(flight.getId(), flight);
+                    bookingRequest.setId(UUID.randomUUID().toString());
+                    bookingRequest.setPnr("PNR-" + bookingRequest.getId().substring(0, 6).toUpperCase());
+                    return bookingRepo.save(bookingRequest);
+                });
     }
 
     @Override
