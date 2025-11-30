@@ -8,21 +8,22 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import com.flightapp.entity.Flight;
-import com.flightapp.entity.Seat;
+import com.flightapp.dto.FlightDTO;
+import com.flightapp.dto.SeatDTO;
+
 
 @FeignClient(name = "flight-service")
 public interface FlightClient {
 	
-	@GetMapping("/flights/{flightId}")
-    Flight getFlightById(@PathVariable String flightId);
+	@GetMapping("/api/flight/flights/{flightId}")
+    FlightDTO getFlightById(@PathVariable String flightId);
 
-    @PutMapping("/flights/{id}")
-    void updateFlight(@PathVariable String id, @RequestBody Flight flight);
+    @PutMapping("/api/flight/flights/{id}")
+    void updateFlight(@PathVariable String id, @RequestBody FlightDTO flight);
 
-    @GetMapping("/flights/{id}/seats")
-    List<Seat> getSeatsByFlightId(@PathVariable String id);
+    @GetMapping("/api/flight/seats/{flightId}")
+    List<SeatDTO> getSeatsByFlightId(@PathVariable String flightId);
 
-    @PutMapping("/flights/{id}/seats")
-    void updateSeats(@PathVariable String id, @RequestBody List<Seat> seats);
+    @PutMapping("/api/flight/seats/{id}/update")
+    void updateSeats(@PathVariable String id, @RequestBody List<SeatDTO> seats);
 }
