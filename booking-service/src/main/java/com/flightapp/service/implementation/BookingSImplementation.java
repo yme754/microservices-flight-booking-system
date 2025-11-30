@@ -36,17 +36,17 @@ public class BookingSImplementation implements BookingService{
     @Override
     public Mono<Booking> bookFlight(Booking bookingRequest) {
 
-        return Mono.fromCallable(() -> flightClient.getFlightById(bookingRequest.getFlightId()))
-                .flatMap(flight -> {
-                    if (flight == null) 
-                    	return Mono.error(new RuntimeException("Flight not found"));
-                    if (flight.getAvailableSeats() < bookingRequest.getSeatCount()) return Mono.error(new RuntimeException("Not enough seats available"));
-                    flight.setAvailableSeats(flight.getAvailableSeats() - bookingRequest.getSeatCount());
-                    flightClient.updateFlight(flight.getId(), flight);
-                    bookingRequest.setId(UUID.randomUUID().toString());
-                    bookingRequest.setPnr("PNR-" + bookingRequest.getId().substring(0, 6).toUpperCase());
-                    return bookingRepo.save(bookingRequest);
-                });
+    	return Mono.fromCallable(() -> flightClient.getFlightById(bookingRequest.getFlightId()))
+    		    .flatMap(flight -> flight != null? Mono.just(flight): Mono.error(new RuntimeException("Flight not found")))
+    		    .flatMap(flight -> {
+    		        if (flight.getAvailableSeats() < bookingRequest.getSeatCount())
+    		            return Mono.error(new RuntimeException("Not enough seats available"));
+    		        flight.setAvailableSeats(flight.getAvailableSeats() - bookingRequest.getSeatCount());
+    		        flightClient.updateFlight(flight.getId(), flight);
+    		        bookingRequest.setId(UUID.randomUUID().toString());
+    		        bookingRequest.setPnr("PNR-" + bookingRequest.getId().substring(0, 6).toUpperCase());
+    		        return bookingRepo.save(bookingRequest);
+    		    });
     }
 
     @Override
