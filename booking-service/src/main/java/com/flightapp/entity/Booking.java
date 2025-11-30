@@ -22,7 +22,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collection = "bookingdb")
+@Document(collection = "bookings")
 public class Booking {
 	@Id
 	private String id;

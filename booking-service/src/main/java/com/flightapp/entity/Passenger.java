@@ -1,6 +1,5 @@
 package com.flightapp.entity;
 
-import org.springframework.data.annotation.Id;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Max;
@@ -14,7 +13,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Passenger {
-	@Id
 	private String id;
 	@NotBlank(message = "Passenger name is required")
 	private String name;
