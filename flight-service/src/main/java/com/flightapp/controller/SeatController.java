@@ -22,13 +22,13 @@ import reactor.core.publisher.Mono;
 public class SeatController {
 	private final SeatService seatService;
 
-    @GetMapping("/flight/{flightId}")
+	@GetMapping("/{flightId}")
     public Flux<Seat> getSeatsByFlightId(@PathVariable String flightId) {
         return seatService.getSeatsByFlightId(flightId);
     }
 
-    @PutMapping("/flights/{id}/seats")
-    public Mono<Void> updateSeats(@PathVariable String id, @RequestBody List<Seat> seats) {
-        return seatService.updateSeats(id, seats);
+    @PutMapping("/{flightId}/update")
+    public Mono<Void> updateSeats( @PathVariable String flightId, @RequestBody List<Seat> seats) {
+        return seatService.updateSeats(flightId, seats);
     }
 }
