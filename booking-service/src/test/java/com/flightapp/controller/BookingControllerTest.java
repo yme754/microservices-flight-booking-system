@@ -1,0 +1,60 @@
+package com.flightapp.controller;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
+import java.util.UUID;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.test.web.reactive.server.WebTestClient;
+
+import com.flightapp.entity.Booking;
+import com.flightapp.enums.GENDER;
+import com.flightapp.enums.MEAL_PREFERENCE;
+import com.flightapp.enums.TRIP_TYPE;
+import com.flightapp.service.BookingService;
+
+import reactor.core.publisher.Mono;
+
+public class BookingControllerTest {
+	private WebTestClient webTestClient;
+
+    @Mock
+    private BookingService bookingService;
+
+    private Booking sampleBooking;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        BookingController bookingController = new BookingController(bookingService);
+        webTestClient = WebTestClient.bindToController(bookingController).build();
+        sampleBooking = new Booking();
+        sampleBooking.setId(UUID.randomUUID().toString());
+        sampleBooking.setPnr("PNR-ABC123");
+        sampleBooking.setEmail("test@gmail.com");
+        sampleBooking.setSeatCount(2);
+        sampleBooking.setGender(GENDER.FEMALE);
+        sampleBooking.setTripType(TRIP_TYPE.ONE_WAY);
+        sampleBooking.setMealPref(MEAL_PREFERENCE.VEG);
+        sampleBooking.setFlightId("FL123");
+        sampleBooking.setPassengerIds(List.of("P1", "P2"));
+        sampleBooking.setSeatNumbers(List.of("1A", "1B"));
+        sampleBooking.setTotalAmount(5000);
+    }
+
+    @Test
+    void testCreateBooking() {
+        when(bookingService.createBooking(any(Booking.class))).thenReturn(Mono.just(sampleBooking));
+        webTestClient.post().uri("/bookings").bodyValue(sampleBooking).exchange().expectStatus().isOk()
+        .expectBody().jsonPath("$.pnr").isEqualTo("PNR-ABC123");
+        verify(bookingService, times(1)).createBooking(any(Booking.class));
+    }
+
+}
