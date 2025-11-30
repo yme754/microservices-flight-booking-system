@@ -17,7 +17,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/api/seats")
+@RequestMapping("/api/flight/seats")
 @RequiredArgsConstructor
 public class SeatController {
 	private final SeatService seatService;

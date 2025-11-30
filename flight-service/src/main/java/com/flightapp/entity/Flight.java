@@ -34,4 +34,6 @@ public class Flight {
 	private Price price;
 	@NotBlank(message = "Airline ID is required")
 	private String airlineId;
+	private String flightNumber;
+
 }

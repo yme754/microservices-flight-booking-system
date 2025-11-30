@@ -2,15 +2,19 @@ package com.flightapp.service.implementation;
 
 import java.util.List;
 
+import org.springframework.stereotype.Service;
+
 import com.flightapp.entity.Flight;
 import com.flightapp.entity.Seat;
 import com.flightapp.repository.FlightRepository;
 import com.flightapp.repository.SeatRepository;
 import com.flightapp.service.FlightService;
 
+import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@Service
 public class FlightSImplementation implements FlightService{
 	private final FlightRepository flightRepo;
     private final SeatRepository seatRepo;
@@ -29,6 +33,18 @@ public class FlightSImplementation implements FlightService{
     public Mono<Void> updateFlight(String id, Flight flight) {
         flight.setId(id);
         return flightRepo.save(flight).then();
+    }
+    
+    @Override
+    public Mono<Flight> addFlight(Flight flight) {
+        return flightRepo.save(flight);
+    }
+
+    @Override
+    public Flux<Flight> searchFlights(String from, String to) {
+        return flightRepo.findAll()
+                .filter(f -> f.getFromPlace().equalsIgnoreCase(from)
+                          && f.getToPlace().equalsIgnoreCase(to));
     }
 
     @Override

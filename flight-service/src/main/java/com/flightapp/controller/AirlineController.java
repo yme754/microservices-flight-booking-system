@@ -25,7 +25,7 @@ public class AirlineController {
     }
 
     @GetMapping("/get/{id}")
-    public Mono<Airline> getById(@PathVariable String id) {
+    public Mono<Airline> getById(@Valid @PathVariable String id) {
         return airlineService.getById(id);
     }
 }

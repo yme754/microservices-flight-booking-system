@@ -13,11 +13,12 @@ import com.flightapp.entity.Flight;
 import com.flightapp.entity.Seat;
 import com.flightapp.service.FlightService;
 
+import jakarta.validation.Valid;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/flights")
+@RequestMapping("/api/flight/flights")
 public class FlightController {
 	private final FlightService flightService;
 
@@ -26,7 +27,7 @@ public class FlightController {
     }
 
     @GetMapping("/{id}")
-    public Mono<Flight> getFlightById(@PathVariable String id) {
+    public Mono<Flight> getFlightById(@Valid @PathVariable String id) {
         return flightService.getFlightById(id);
     }
 

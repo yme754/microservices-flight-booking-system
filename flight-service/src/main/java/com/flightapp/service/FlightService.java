@@ -15,4 +15,6 @@ public interface FlightService {
     Mono<Void> updateSeats(String flightId, List<Seat> seats);
     Mono<Flight> reduceAvailableSeats(String flightId, int seatCount);
     Mono<Flight> increaseAvailableSeats(String flightId, int seatCount);
+	Mono<Flight> addFlight(Flight flight);
+	Flux<Flight> searchFlights(String from, String to);
 }
