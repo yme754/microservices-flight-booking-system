@@ -52,7 +52,7 @@ public class BookingControllerTest {
     @Test
     void testCreateBooking() {
         when(bookingService.createBooking(any(Booking.class))).thenReturn(Mono.just(sampleBooking));
-        webTestClient.post().uri("/bookings").bodyValue(sampleBooking).exchange().expectStatus().isOk()
+        webTestClient.post().uri("/api/flight/bookings").bodyValue(sampleBooking).exchange().expectStatus().isOk()
         .expectBody().jsonPath("$.pnr").isEqualTo("PNR-ABC123");
         verify(bookingService, times(1)).createBooking(any(Booking.class));
     }
@@ -60,7 +60,7 @@ public class BookingControllerTest {
     @Test
     void testGetBookingByPnr() {
         when(bookingService.getBookingByPnr("PNR-ABC123")).thenReturn(Mono.just(sampleBooking));
-        webTestClient.get().uri("/bookings/PNR-ABC123").exchange().expectStatus().isOk()
+        webTestClient.get().uri("/api/flight/bookings/PNR-ABC123").exchange().expectStatus().isOk()
         .expectBody().jsonPath("$.email").isEqualTo("test@gmail.com");
         verify(bookingService, times(1)).getBookingByPnr("PNR-ABC123");
     }
@@ -68,7 +68,7 @@ public class BookingControllerTest {
     @Test
     void testGetAllBookings() {
         when(bookingService.getAllBookings()).thenReturn(Flux.just(sampleBooking));
-        webTestClient.get().uri("/bookings").exchange().expectStatus().isOk().expectBody()
+        webTestClient.get().uri("/api/flight/bookings").exchange().expectStatus().isOk().expectBody()
         .jsonPath("$[0].pnr").isEqualTo("PNR-ABC123");
         verify(bookingService, times(1)).getAllBookings();
     }
@@ -76,7 +76,7 @@ public class BookingControllerTest {
     @Test
     void testDeleteBooking() {
         when(bookingService.deleteBooking("123")).thenReturn(Mono.empty());
-        webTestClient.delete().uri("/bookings/123").exchange().expectStatus().isOk();
+        webTestClient.delete().uri("/api/flight/bookings/123").exchange().expectStatus().isOk();
         verify(bookingService, times(1)).deleteBooking("123");
     }
 }
