@@ -20,6 +20,7 @@ import com.flightapp.enums.MEAL_PREFERENCE;
 import com.flightapp.enums.TRIP_TYPE;
 import com.flightapp.service.BookingService;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public class BookingControllerTest {
@@ -27,7 +28,6 @@ public class BookingControllerTest {
 
     @Mock
     private BookingService bookingService;
-
     private Booking sampleBooking;
 
     @BeforeEach
@@ -56,5 +56,27 @@ public class BookingControllerTest {
         .expectBody().jsonPath("$.pnr").isEqualTo("PNR-ABC123");
         verify(bookingService, times(1)).createBooking(any(Booking.class));
     }
+    
+    @Test
+    void testGetBookingByPnr() {
+        when(bookingService.getBookingByPnr("PNR-ABC123")).thenReturn(Mono.just(sampleBooking));
+        webTestClient.get().uri("/bookings/PNR-ABC123").exchange().expectStatus().isOk()
+        .expectBody().jsonPath("$.email").isEqualTo("test@gmail.com");
+        verify(bookingService, times(1)).getBookingByPnr("PNR-ABC123");
+    }
 
+    @Test
+    void testGetAllBookings() {
+        when(bookingService.getAllBookings()).thenReturn(Flux.just(sampleBooking));
+        webTestClient.get().uri("/bookings").exchange().expectStatus().isOk().expectBody()
+        .jsonPath("$[0].pnr").isEqualTo("PNR-ABC123");
+        verify(bookingService, times(1)).getAllBookings();
+    }
+
+    @Test
+    void testDeleteBooking() {
+        when(bookingService.deleteBooking("123")).thenReturn(Mono.empty());
+        webTestClient.delete().uri("/bookings/123").exchange().expectStatus().isOk();
+        verify(bookingService, times(1)).deleteBooking("123");
+    }
 }
