@@ -10,6 +10,7 @@ import com.flightapp.feign.FlightClient;
 import com.flightapp.repository.BookingRepository;
 import com.flightapp.service.BookingService;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -17,7 +18,6 @@ import reactor.core.publisher.Mono;
 @Service
 public class BookingSImplementation implements BookingService{
 	private final BookingRepository bookingRepo;
-
 	private final FlightClient flightClient;
 
 	public BookingSImplementation(BookingRepository bookingRepo, FlightClient flightClient) {
@@ -34,26 +34,26 @@ public class BookingSImplementation implements BookingService{
     }
     
     @Override
+    @CircuitBreaker(name = "flightServiceBreaker", fallbackMethod = "bookFlightFallback")
     public Mono<Booking> bookFlight(Booking bookingRequest) {
-
-        return Mono.fromSupplier(() -> flightClient.getFlightById(bookingRequest.getFlightId()))
+    	return Mono.fromCallable(() -> flightClient.getFlightById(bookingRequest.getFlightId()))
                 .flatMap(flight -> {
-                    if (flight == null) return Mono.error(new RuntimeException("Flight not found"));
-                    if (flight.getAvailableSeats() < bookingRequest.getSeatCount()) return Mono.error(new RuntimeException("Not enough seats available"));
+                    if (flight == null)
+                        return Mono.error(new RuntimeException("Flight not found"));
+                    if (flight.getAvailableSeats() < bookingRequest.getSeatCount())
+                        return Mono.error(new RuntimeException("Not enough seats available"));
                     flight.setAvailableSeats(flight.getAvailableSeats() - bookingRequest.getSeatCount());
                     flightClient.updateFlight(flight.getId(), flight);
                     bookingRequest.setId(UUID.randomUUID().toString());
-                    bookingRequest.setPnr("PNR- " + bookingRequest.getId().substring(0, 6).toUpperCase());
+                    bookingRequest.setPnr("PNR-" + bookingRequest.getId().substring(0, 6).toUpperCase());
                     return bookingRepo.save(bookingRequest);
-                }).switchIfEmpty(Mono.error(new RuntimeException("Flight not found")));
+                });
     }
 
 
     @Override
     public Mono<Booking> getBookingByPnr(String pnr) {
-        return bookingRepo.findAll()
-                .filter(b -> pnr.equals(b.getPnr()))
-                .singleOrEmpty();
+        return bookingRepo.findAll().filter(b -> pnr.equals(b.getPnr())).singleOrEmpty();
     }
 
     @Override
@@ -68,25 +68,33 @@ public class BookingSImplementation implements BookingService{
 
     @Override
     public Mono<Booking> updateSeatNumbers(String bookingId, List<String> seatNumbers) {
-        return bookingRepo.findById(bookingId)
-                .flatMap(b -> {b.setSeatNumbers(seatNumbers);
-                    return bookingRepo.save(b);
+        return bookingRepo.findById(bookingId).flatMap(b -> {b.setSeatNumbers(seatNumbers);
+        return bookingRepo.save(b);
                 });
     }
 
     @Override
     public Mono<Booking> updatePassengerIds(String bookingId, List<String> passengerIds) {
-        return bookingRepo.findById(bookingId)
-                .flatMap(b -> {b.setPassengerIds(passengerIds);
-                    return bookingRepo.save(b);
+        return bookingRepo.findById(bookingId).flatMap(b -> {b.setPassengerIds(passengerIds);
+        return bookingRepo.save(b);
                 });
     }
 
     @Override
     public Mono<Booking> updateTotalAmount(String bookingId, float amount) {
-        return bookingRepo.findById(bookingId)
-                .flatMap(b -> {b.setTotalAmount(amount);
-                    return bookingRepo.save(b);
+        return bookingRepo.findById(bookingId).flatMap(b -> {b.setTotalAmount(amount);
+        return bookingRepo.save(b);
                 });
+    }
+    
+    public Mono<Booking> bookFlightFallback(Booking bookingRequest, Throwable ex) {
+        Booking failedBooking = new Booking();
+        failedBooking.setEmail(bookingRequest.getEmail());
+        failedBooking.setFlightId(bookingRequest.getFlightId());
+        failedBooking.setSeatCount(bookingRequest.getSeatCount());
+        failedBooking.setPassengerIds(bookingRequest.getPassengerIds());
+        failedBooking.setSeatNumbers(bookingRequest.getSeatNumbers());
+        failedBooking.setPnr("FAILED-" + UUID.randomUUID().toString().substring(0, 6));
+        return Mono.just(failedBooking);
     }
 }
