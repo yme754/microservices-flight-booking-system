@@ -6,7 +6,9 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import com.flightapp.entity.Booking;
+import com.flightapp.events.BookingCreatedEvent;
 import com.flightapp.feign.FlightClient;
+import com.flightapp.kafka.BookingEventProducer;
 import com.flightapp.repository.BookingRepository;
 import com.flightapp.service.BookingService;
 
@@ -19,10 +21,12 @@ import reactor.core.publisher.Mono;
 public class BookingSImplementation implements BookingService{
 	private final BookingRepository bookingRepo;
 	private final FlightClient flightClient;
+	private final BookingEventProducer bookingEventProducer;
 
-	public BookingSImplementation(BookingRepository bookingRepo, FlightClient flightClient) {
+	public BookingSImplementation(BookingRepository bookingRepo, FlightClient flightClient, BookingEventProducer bookingEventProducer) {
 	    this.bookingRepo = bookingRepo;
 	    this.flightClient = flightClient;
+	    this.bookingEventProducer = bookingEventProducer;
 	}
 
 
@@ -36,19 +40,36 @@ public class BookingSImplementation implements BookingService{
     @Override
     @CircuitBreaker(name = "flightServiceBreaker", fallbackMethod = "bookFlightFallback")
     public Mono<Booking> bookFlight(Booking bookingRequest) {
-    	return Mono.fromCallable(() -> flightClient.getFlightById(bookingRequest.getFlightId()))
-                .flatMap(flight -> {
-                    if (flight == null)
-                        return Mono.error(new RuntimeException("Flight not found"));
-                    if (flight.getAvailableSeats() < bookingRequest.getSeatCount())
-                        return Mono.error(new RuntimeException("Not enough seats available"));
-                    flight.setAvailableSeats(flight.getAvailableSeats() - bookingRequest.getSeatCount());
-                    flightClient.updateFlight(flight.getId(), flight);
-                    bookingRequest.setId(UUID.randomUUID().toString());
-                    bookingRequest.setPnr("PNR-" + bookingRequest.getId().substring(0, 6).toUpperCase());
-                    return bookingRepo.save(bookingRequest);
-                });
+
+        return Mono.defer(() ->
+                Mono.justOrEmpty(flightClient.getFlightById(bookingRequest.getFlightId()))
+            )
+            .switchIfEmpty(Mono.error(new RuntimeException("Flight not found")))
+            .flatMap(flight -> {
+                if (flight.getAvailableSeats() < bookingRequest.getSeatCount()) {
+                    return Mono.error(new RuntimeException("Not enough seats available"));
+                }
+
+                flight.setAvailableSeats(flight.getAvailableSeats() - bookingRequest.getSeatCount());
+                flightClient.updateFlight(flight.getId(), flight);
+
+                bookingRequest.setId(UUID.randomUUID().toString());
+                bookingRequest.setPnr("PNR-" + bookingRequest.getId().substring(0, 6).toUpperCase());
+
+                return bookingRepo.save(bookingRequest)
+                        .doOnSuccess(saved ->
+                                bookingEventProducer.sendBookingCreatedEvent(
+                                        new BookingCreatedEvent(
+                                                saved.getId(),
+                                                saved.getEmail(),
+                                                saved.getPnr(),
+                                                saved.getSeatCount()
+                                        )
+                                )
+                        );
+            });
     }
+
 
 
     @Override

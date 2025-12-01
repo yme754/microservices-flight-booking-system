@@ -16,22 +16,29 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.context.annotation.Import;
 
+import com.flightapp.config.Resilience4jTestConfig;
 import com.flightapp.dto.FlightDTO;
 import com.flightapp.entity.Booking;
 import com.flightapp.feign.FlightClient;
+import com.flightapp.kafka.BookingEventProducer;
 import com.flightapp.repository.BookingRepository;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+@Import(Resilience4jTestConfig.class)
 public class BookingSImplementationTest {
 	@Mock
     private BookingRepository bookingRepo;
 
     @Mock
     private FlightClient flightClient;
+    
+    @Mock
+    private BookingEventProducer bookingEventProducer;
 
     @InjectMocks
     private BookingSImplementation bookingService;
@@ -73,10 +80,15 @@ public class BookingSImplementationTest {
     @Test
     void testBookFlight_FlightNotFound() {
         when(flightClient.getFlightById("FL123")).thenReturn(null);
+
         StepVerifier.create(bookingService.bookFlight(booking))
-                .expectErrorMatches(ex -> ex.getMessage().equals("Flight not found")).verify();
+            .expectErrorMatches(ex -> ex instanceof RuntimeException
+                    && ex.getMessage().equals("Flight not found"))
+            .verify();
+        
         verify(bookingRepo, never()).save(any());
     }
+
 
     @Test
     void testBookFlight_NotEnoughSeats() {
