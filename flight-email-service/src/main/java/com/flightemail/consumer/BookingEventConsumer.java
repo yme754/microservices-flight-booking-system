@@ -17,8 +17,12 @@ public class BookingEventConsumer {
     @KafkaListener(topics = "booking-created", groupId = "emailGroup")
     public void consume(BookingCreatedEvent event) {
         System.out.println("Received event: " + event);
-        String subject = "Booking Confirmation - " + event.getPnr();
-        String message = "Your booking is confirmed!\nPNR: " + event.getPnr();
+        String subject = "Your flight booking is confirmed - " + event.getPnr();
+        String message =
+                "Thanks for booking your flight!\n\n" +
+                "Your PNR is: " + event.getPnr() + "\n" +
+                "Seats Booked: " + event.getSeatCount() + "\n\n" +
+                "We wish you a pleasant journey!\n";
         emailSenderService.sendEmail(event.getEmail(), subject, message);
     }
 }
