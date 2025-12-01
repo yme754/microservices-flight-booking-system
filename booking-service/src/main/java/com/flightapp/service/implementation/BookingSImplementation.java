@@ -86,4 +86,15 @@ public class BookingSImplementation implements BookingService{
         return bookingRepo.save(b);
                 });
     }
+    
+    public Mono<Booking> bookFlightFallback(Booking bookingRequest, Throwable ex) {
+        Booking failedBooking = new Booking();
+        failedBooking.setEmail(bookingRequest.getEmail());
+        failedBooking.setFlightId(bookingRequest.getFlightId());
+        failedBooking.setSeatCount(bookingRequest.getSeatCount());
+        failedBooking.setPassengerIds(bookingRequest.getPassengerIds());
+        failedBooking.setSeatNumbers(bookingRequest.getSeatNumbers());
+        failedBooking.setPnr("FAILED-" + UUID.randomUUID().toString().substring(0, 6));
+        return Mono.just(failedBooking);
+    }
 }
