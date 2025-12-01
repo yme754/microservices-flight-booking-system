@@ -25,4 +25,14 @@ public class BookingEventConsumer {
                 "We wish you a pleasant journey!\n";
         emailSenderService.sendEmail(event.getEmail(), subject, message);
     }
+    
+    @KafkaListener(topics = "booking-cancelled", groupId = "emailGroup")
+    public void consumeBookingCancelled(BookingCreatedEvent event) {
+        System.out.println("Received Booking Cancelled event: " + event);
+        String subject = "Your flight booking is cancelled - " + event.getPnr();
+        String message =
+                "Hello,\n\n" +
+                "Your flight with PNR " + event.getPnr() + " has been cancelled successfully.\n\n";
+        emailSenderService.sendEmail(event.getEmail(), subject, message);
+    }
 }
