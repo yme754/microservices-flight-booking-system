@@ -104,7 +104,7 @@ public class BookingSImplementation implements BookingService {
                 });
     }
 
-    public Mono<Booking> bookFlightFallback(Booking bookingRequest, Throwable ex) {
+    public Mono<Booking> bookFlightFallback(Booking bookingRequest) {
         Booking failedBooking = new Booking();
         failedBooking.setEmail(bookingRequest.getEmail());
         failedBooking.setFlightId(bookingRequest.getFlightId());

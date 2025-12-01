@@ -23,7 +23,7 @@ import com.flightapp.service.BookingService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public class BookingControllerTest {
+class BookingControllerTest {
 	private WebTestClient webTestClient;
 
     @Mock
@@ -64,6 +64,22 @@ public class BookingControllerTest {
         .expectBody().jsonPath("$.email").isEqualTo("test@gmail.com");
         verify(bookingService, times(1)).getBookingByPnr("PNR-ABC123");
     }
+    
+    @Test
+    void testBookFlight() {
+        when(bookingService.bookFlight(any(Booking.class)))
+                .thenReturn(Mono.just(sampleBooking));
+        webTestClient.post()
+                .uri("/api/flight/bookings/book")
+                .bodyValue(sampleBooking)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.pnr").isEqualTo("PNR-ABC123")
+                .jsonPath("$.email").isEqualTo("test@gmail.com");
+        verify(bookingService, times(1)).bookFlight(any(Booking.class));
+    }
+
 
     @Test
     void testGetAllBookings() {

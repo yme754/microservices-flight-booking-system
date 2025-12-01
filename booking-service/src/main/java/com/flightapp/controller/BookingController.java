@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.flightapp.dto.BookingDTO;
 import com.flightapp.entity.Booking;
 import com.flightapp.service.BookingService;
 
@@ -24,27 +25,57 @@ public class BookingController {
     }
 
     @PostMapping
-    public Mono<Booking> createBooking(@RequestBody Booking booking) {
-        return bookingService.createBooking(booking);
+    public Mono<BookingDTO> createBooking(@RequestBody BookingDTO bookingDTO) {
+        return bookingService.createBooking(toEntity(bookingDTO))
+                .map(this::toDto);
     }
-    
+
     @PostMapping("/book")
-    public Mono<Booking> bookFlight(@RequestBody Booking booking) {
-        return bookingService.bookFlight(booking);
+    public Mono<BookingDTO> bookFlight(@RequestBody BookingDTO bookingDTO) {
+        return bookingService.bookFlight(toEntity(bookingDTO))
+                .map(this::toDto);
     }
 
     @GetMapping("/{pnr}")
-    public Mono<Booking> getByPnr(@PathVariable String pnr) {
-        return bookingService.getBookingByPnr(pnr);
+    public Mono<BookingDTO> getByPnr(@PathVariable String pnr) {
+        return bookingService.getBookingByPnr(pnr)
+                .map(this::toDto);
     }
 
     @GetMapping
-    public Flux<Booking> getAll() {
-        return bookingService.getAllBookings();
+    public Flux<BookingDTO> getAll() {
+        return bookingService.getAllBookings()
+                .map(this::toDto);
     }
 
     @DeleteMapping("/{id}")
     public Mono<Void> delete(@PathVariable String id) {
         return bookingService.deleteBooking(id);
     }
+    private BookingDTO toDto(Booking booking) {
+        BookingDTO dto = new BookingDTO();
+        dto.setId(booking.getId());
+        dto.setPnr(booking.getPnr());
+        dto.setEmail(booking.getEmail());
+        dto.setFlightId(booking.getFlightId());
+        dto.setSeatCount(booking.getSeatCount());
+        dto.setPassengerIds(booking.getPassengerIds());
+        dto.setSeatNumbers(booking.getSeatNumbers());
+        dto.setTotalAmount(booking.getTotalAmount());
+        return dto;
+    }
+
+    private Booking toEntity(BookingDTO dto) {
+        Booking booking = new Booking();
+        booking.setId(dto.getId());
+        booking.setPnr(dto.getPnr());
+        booking.setEmail(dto.getEmail());
+        booking.setFlightId(dto.getFlightId());
+        booking.setSeatCount(dto.getSeatCount());
+        booking.setPassengerIds(dto.getPassengerIds());
+        booking.setSeatNumbers(dto.getSeatNumbers());
+        booking.setTotalAmount(dto.getTotalAmount());
+        return booking;
+    }
+
 }
