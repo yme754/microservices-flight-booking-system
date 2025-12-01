@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.flightapp.entity.Airline;
 import com.flightapp.service.AirlineService;
 
-import jakarta.validation.Valid;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

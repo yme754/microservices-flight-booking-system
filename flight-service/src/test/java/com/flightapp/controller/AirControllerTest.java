@@ -19,7 +19,7 @@ import com.flightapp.service.AirlineService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public class AirControllerTest {
+class AirControllerTest {
 	@Mock
     private AirlineService airlineService;
     private WebTestClient client;

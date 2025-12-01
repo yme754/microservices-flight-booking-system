@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.flightapp.entity.Flight;
 import com.flightapp.service.FlightService;
 
-import jakarta.validation.Valid;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

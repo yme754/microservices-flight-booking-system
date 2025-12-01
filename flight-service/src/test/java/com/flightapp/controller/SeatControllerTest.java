@@ -17,7 +17,7 @@ import com.flightapp.service.SeatService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public class SeatControllerTest {
+class SeatControllerTest {
 	@Mock
     private SeatService seatService;
     private WebTestClient client;
