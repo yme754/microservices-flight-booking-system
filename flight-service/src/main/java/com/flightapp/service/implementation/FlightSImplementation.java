@@ -10,7 +10,6 @@ import com.flightapp.repository.FlightRepository;
 import com.flightapp.repository.SeatRepository;
 import com.flightapp.service.FlightService;
 
-import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
