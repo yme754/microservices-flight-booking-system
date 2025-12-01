@@ -36,7 +36,6 @@ public class FlightController {
         return flightService.updateFlight(id, flight);
     }
 
-    // OPTIONAL (not required for Feign but good API)
     @PostMapping("/add")
     public Mono<Flight> addFlight(@RequestBody Flight flight) {
         return flightService.addFlight(flight);
