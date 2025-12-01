@@ -46,7 +46,7 @@ public class BookingControllerTest {
         sampleBooking.setFlightId("FL123");
         sampleBooking.setPassengerIds(List.of("P1", "P2"));
         sampleBooking.setSeatNumbers(List.of("1A", "1B"));
-        sampleBooking.setTotalAmount(5000);
+        sampleBooking.setTotalAmount((float) 5000.0);
     }
 
     @Test

@@ -33,11 +33,11 @@ public class Booking {
 	@Positive(message = "Seat count must be > 0")
 	@Max(value = 10, message = "booking more than 10 tickets isn't permitted")
 	private int seatCount;
-	@NotNull(message = "Gender is required")
+//	@NotNull(message = "Gender is required")
 	private GENDER gender;
-	@NotNull(message = "Trip type is required")
+//	@NotNull(message = "Trip type is required")
 	private TRIP_TYPE tripType;
-	@NotNull(message = "Meal preference is required")
+//	@NotNull(message = "Meal preference is required")
 	private MEAL_PREFERENCE mealPref;
 	private String flightId;
 	@NotNull(message = "Passengers list cannot be null")
@@ -46,5 +46,5 @@ public class Booking {
 	@NotNull(message = "Seat numbers list cannot be null")
 	@Size(min = 1, message = "At least one seat number must be provided")
 	private List<String> seatNumbers;
-	private float totalAmount;
+	private Float totalAmount;
 }
