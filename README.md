@@ -77,7 +77,7 @@ The system is split into **two independent microservices**:
 
 ---
 
-### 🔹 Performance Testing
+### Performance Testing
 - Apache JMeter (CLI Mode)  
 - Newman CLI (Postman collection runner)
 
@@ -85,10 +85,10 @@ The system is split into **two independent microservices**:
 
 ## 3. System Features
 
-### ✔ Microservice Architecture
+### Microservice Architecture
 Each service runs independently and communicates via HTTP + Kafka.
 
-### ✔ Reactive Non-Blocking Design
+### Reactive Non-Blocking Design
 All APIs use WebFlux + Reactor for high-throughput asynchronous processing.
 
 ---
