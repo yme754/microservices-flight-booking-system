@@ -1,6 +1,8 @@
 package com.flightapp.controller;
 
+import java.util.Map;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -8,6 +10,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.flightapp.entity.Flight;
@@ -36,8 +39,9 @@ public class FlightController {
     }
 
     @PostMapping("/add")
-    public Mono<Flight> addFlight(@RequestBody Flight flight) {
-        return flightService.addFlight(flight);
+    @ResponseStatus(HttpStatus.CREATED)
+    public Mono<Map<String, String>> addFlight(@RequestBody Flight flight) {
+        return flightService.addFlight(flight).map(savedFlight -> Map.of("id", savedFlight.getId()));
     }
 
     @GetMapping("/search")
