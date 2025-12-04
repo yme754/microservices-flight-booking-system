@@ -1,5 +1,7 @@
 package com.flightapp.controller;
 
+import java.util.Optional;
+
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -61,7 +63,7 @@ public class BookingController {
         dto.setSeatCount(booking.getSeatCount());
         dto.setPassengerIds(booking.getPassengerIds());
         dto.setSeatNumbers(booking.getSeatNumbers());
-        dto.setTotalAmount(booking.getTotalAmount());
+        dto.setTotalAmount(Optional.ofNullable(booking.getTotalAmount()).orElse(0f));
         return dto;
     }
 

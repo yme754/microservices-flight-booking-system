@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import com.flightapp.entity.Booking;
+import com.flightapp.events.BookingCancelledEvent;
 import com.flightapp.events.BookingCreatedEvent;
 import com.flightapp.kafka.BookingEventProducer;
 import com.flightapp.repository.BookingRepository;
@@ -74,8 +75,28 @@ public class BookingSImplementation implements BookingService {
 
     @Override
     public Mono<Void> deleteBooking(String id) {
-        return bookingRepo.deleteById(id);
+        return bookingRepo.findById(id)
+                .flatMap(booking -> {
+
+                    // 1. Build cancellation event
+                    BookingCancelledEvent event = new BookingCancelledEvent(
+                            booking.getId(),
+                            booking.getEmail(),
+                            booking.getPnr(),
+                            booking.getSeatCount(),
+                            "Booking cancelled by user"
+                    );
+
+                    // 2. Send cancellation event
+                    bookingEventProducer.sendBookingCancelledEvent(event);
+
+                    // 3. Delete from DB
+                    return bookingRepo.delete(booking);
+                });
     }
+
+
+
 
     @Override
     public Mono<Booking> updateSeatNumbers(String bookingId, List<String> seatNumbers) {

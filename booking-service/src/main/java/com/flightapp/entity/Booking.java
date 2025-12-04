@@ -46,5 +46,5 @@ public class Booking {
 	@NotNull(message = "Seat numbers list cannot be null")
 	@Size(min = 1, message = "At least one seat number must be provided")
 	private List<String> seatNumbers;
-	private Float totalAmount;
+	private Float totalAmount = 0.0f;
 }
