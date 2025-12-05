@@ -17,29 +17,21 @@ import com.flightapp.events.BookingCreatedEvent;
 @Configuration
 public class KafkaConsumerConfig {
 
+	@SuppressWarnings("deprecation")
 	@Bean
     public ConsumerFactory<String, BookingCreatedEvent> consumerFactory() {
-        JsonDeserializer<BookingCreatedEvent> deserializer =
-                new JsonDeserializer<>(BookingCreatedEvent.class);
-
+        JsonDeserializer<BookingCreatedEvent> deserializer = new JsonDeserializer<>(BookingCreatedEvent.class);
         deserializer.addTrustedPackages("com.flightapp.events");
-
         Map<String, Object> config = new HashMap<>();
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         config.put(ConsumerConfig.GROUP_ID_CONFIG, "emailGroup");
         config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-
-        return new DefaultKafkaConsumerFactory<>(
-                config,
-                new StringDeserializer(),
-                deserializer
-        );
+        return new DefaultKafkaConsumerFactory<>(config, new StringDeserializer(), deserializer);
     }
 
     @Bean(name = "kafkaListenerContainerFactory")
     public ConcurrentKafkaListenerContainerFactory<String, BookingCreatedEvent> kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, BookingCreatedEvent> factory =
-                new ConcurrentKafkaListenerContainerFactory<>();
+        ConcurrentKafkaListenerContainerFactory<String, BookingCreatedEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         return factory;
     }
