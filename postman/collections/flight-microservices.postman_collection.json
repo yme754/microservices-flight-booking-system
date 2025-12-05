@@ -1,0 +1,100 @@
+{
+  "info": {
+    "_postman_id": "2324e4f9-2111-4cbd-b6a7-cf8c7ef1654b",
+    "name": "flight-microservices",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "37303686"
+  },
+  "item": [
+    {
+      "name": "add airline",
+      "id": "b588aa79-9ce6-41d5-8a09-214021bcffd7",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "get all airlines",
+      "id": "186b66d2-11a0-400c-8338-4eedb52d36f3",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "get airline by ID",
+      "id": "7b55cc45-b71d-408f-a73f-3387ec2a6df5",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "add flight",
+      "id": "e925f14c-fbcc-4d59-bfdf-fda62fbcd36c",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "get flight by ID",
+      "id": "d8104661-d31b-488a-b447-e726f5079a26",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "add booking",
+      "id": "bb95ed1e-bb27-4552-a913-cbfb3857db17",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "book flight",
+      "id": "6fd4c8d9-01e2-48da-ac20-d6055067e2fe",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "get all bookings",
+      "id": "19cc037e-6e5a-4045-b6af-924076ebc5fb",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "del booking",
+      "id": "478f55ed-4e04-40b9-b463-127de5ac46fe",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "get booking by PNR",
+      "id": "6bb77c11-08eb-4169-b4d7-85453dc8845d",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    }
+  ]
+}
