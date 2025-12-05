@@ -1,5 +1,6 @@
 package com.flightapp.entity;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.annotation.Id;
@@ -33,6 +34,7 @@ public class Booking {
 	@Positive(message = "Seat count must be > 0")
 	@Max(value = 10, message = "booking more than 10 tickets isn't permitted")
 	private int seatCount;
+	private LocalDateTime bookingDate;
 //	@NotNull(message = "Gender is required")
 	private GENDER gender;
 //	@NotNull(message = "Trip type is required")

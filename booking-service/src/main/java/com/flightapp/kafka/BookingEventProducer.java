@@ -9,13 +9,9 @@ import com.flightapp.events.BookingCreatedEvent;
 @Component
 public class BookingEventProducer {
 	private final KafkaTemplate<String, BookingCreatedEvent> kafkaTemplate;
-
-    private static final String TOPIC = "booking-created";
-
     public BookingEventProducer(KafkaTemplate<String, BookingCreatedEvent> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
     }
-
     public void sendBookingCreatedEvent(BookingCreatedEvent event) {
         kafkaTemplate.send("booking-created", event.getBookingId(), event)
             .whenComplete((result, ex) -> {

@@ -16,6 +16,7 @@ import com.flightapp.events.BookingCreatedEvent;
 
 @Configuration
 public class KafkaProducerConfig {
+	@SuppressWarnings("removal")
 	@Bean
     public ProducerFactory<String, BookingCreatedEvent> producerFactory() {
         Map<String, Object> config = new HashMap<>();

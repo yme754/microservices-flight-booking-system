@@ -1,5 +1,7 @@
 package com.flightapp.service.implementation;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,10 +24,7 @@ public class BookingSImplementation implements BookingService {
     private final BookingRepository bookingRepo;
     private final BookingEventProducer bookingEventProducer;
 
-    public BookingSImplementation(
-            BookingRepository bookingRepo,
-            BookingEventProducer bookingEventProducer
-    ) {
+    public BookingSImplementation(BookingRepository bookingRepo, BookingEventProducer bookingEventProducer) {
         this.bookingRepo = bookingRepo;
         this.bookingEventProducer = bookingEventProducer;
     }
@@ -34,6 +33,7 @@ public class BookingSImplementation implements BookingService {
     public Mono<Booking> createBooking(Booking booking) {
         booking.setId(UUID.randomUUID().toString());
         booking.setPnr("PNR-" + booking.getId().substring(0, 6).toUpperCase());
+        booking.setBookingDate(LocalDateTime.now());
         return bookingRepo.save(booking);
     }
 
@@ -41,23 +41,17 @@ public class BookingSImplementation implements BookingService {
     @CircuitBreaker(name = "flightServiceBreaker", fallbackMethod = "bookFlightFallback")
     public Mono<Booking> bookFlight(Booking bookingRequest) {
         int dummyAvailableSeats = 100;
-
-        if (bookingRequest.getSeatCount() > dummyAvailableSeats) {
-            return Mono.error(new RuntimeException("Not enough seats available"));
-        }
+        if (bookingRequest.getSeatCount() > dummyAvailableSeats) return Mono.error(new RuntimeException("Not enough seats available"));
         bookingRequest.setId(UUID.randomUUID().toString());
         bookingRequest.setPnr("PNR-" + bookingRequest.getId().substring(0, 6).toUpperCase());
+        bookingRequest.setBookingDate(LocalDateTime.now());
         return bookingRepo.save(bookingRequest)
-                .doOnSuccess(saved ->
-                        bookingEventProducer.sendBookingCreatedEvent(
+                .doOnSuccess(saved ->bookingEventProducer.sendBookingCreatedEvent(
                                 new BookingCreatedEvent(
                                         saved.getId(),
                                         saved.getEmail(),
                                         saved.getPnr(),
-                                        saved.getSeatCount()
-                                )
-                        )
-                );
+                                        saved.getSeatCount())));
     }
 
 
@@ -75,22 +69,11 @@ public class BookingSImplementation implements BookingService {
 
     @Override
     public Mono<Void> deleteBooking(String id) {
-        return bookingRepo.findById(id)
+    	return bookingRepo.findById(id)
+                .switchIfEmpty(Mono.error(new RuntimeException("Invalid flight ID"))) 
                 .flatMap(booking -> {
-
-                    // 1. Build cancellation event
-                    BookingCancelledEvent event = new BookingCancelledEvent(
-                            booking.getId(),
-                            booking.getEmail(),
-                            booking.getPnr(),
-                            booking.getSeatCount(),
-                            "Booking cancelled by user"
-                    );
-
-                    // 2. Send cancellation event
-                    bookingEventProducer.sendBookingCancelledEvent(event);
-
-                    // 3. Delete from DB
+                    long hoursSinceBooking = Duration.between(booking.getBookingDate(), LocalDateTime.now()).toHours();
+                    if (hoursSinceBooking > 24) return Mono.error(new RuntimeException("can't cancel flight after 24 hrs from booking"));
                     return bookingRepo.delete(booking);
                 });
     }
